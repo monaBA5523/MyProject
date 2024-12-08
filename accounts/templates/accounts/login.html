@@ -1,0 +1,16 @@
+{% extends '_base.html' %}
+{% block title %}
+    ورود
+{% endblock %}
+
+
+{% block body %}
+    <form method="post" class="mt-4">
+    {% csrf_token %}
+{#    {{ form.as_p }}#}
+     <input type="text" placeholder="نام کاربری..." name="user">
+     <input type="password" placeholder="password.." name="password">
+    <button type="submit">login</button>
+    </form>
+
+{% endblock %}

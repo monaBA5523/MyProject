@@ -1,0 +1,14 @@
+{% extends '_base.html' %}
+{% block title %}
+    ثبت نام
+{% endblock %}
+
+
+{% block body %}
+    <form method="post" class="mt-4">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">register</button>
+    </form>
+
+{% endblock %}

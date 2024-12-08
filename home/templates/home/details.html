@@ -1,0 +1,99 @@
+{% extends '_base.html' %}
+{% block body %}
+    <h1>{{ product.name }}</h1>
+    <img src="{{ product.image.url }}" width="200" alt="{{ product.name }}">
+    <p> تعداد موجودی: {{ product.amount }} </p>
+    <p>{{ product.information }}</p>
+    <hr>
+ <p>Like : {{ product.total_like }}</p>
+    <p>UnLike : {{ product.total_unlike }}</p>
+    {%  if request.user.is_authenticated %}
+        {% if is_like %}
+             <a href="{% url 'home:product_like' product.id %}">
+                <i class="bi bi-hand-thumbs-up-fill fs-2" style="color: red"></i>
+            </a>
+        {% else %}
+            <a href="{% url 'home:product_like' product.id %}" class="btn {% if is_unlike %} disabled {% endif %}">
+                <i class="bi bi-hand-thumbs-up fs-2" style="color: red"></i>
+            </a>
+        {% endif %}
+        {% if is_unlike %}
+             <a href="{% url 'home:product_unlike' product.id %}" >
+                <i class="bi bi-hand-thumbs-down-fill fs-2" style="color: red"></i>
+            </a>
+        {% else %}
+            <a href="{% url 'home:product_unlike' product.id %}" class="btn {% if is_like %} disabled {% endif %}">
+                <i class="bi bi-hand-thumbs-down fs-2" style="color: red"></i>
+            </a>
+        {% endif %}
+    {% endif %}
+<hr>
+    <h2>کامنت های کاربران :</h2>
+    <ul>
+        {% for comment in comments %}
+            <li>
+            <strong>{{ comment.user.username }}</strong>:{{ comment.content }}
+            <br>
+            <small>{{ comment.created_at }}</small>
+            {% if comment.replies.exists %}
+                <ul>
+                {% for reply in comment.replies.all %}
+                    <li>
+                    <strong>{{ reply.user.username }}</strong>:{{ reply.content }}
+                    <br>
+                    <smal>{{ reply.created_at }}</smal>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+            {% if user.is_authenticated %}
+                <form method="post" action="{% url 'home:details' product.id %}">
+                {% csrf_token %}
+                {{ form }}
+                <input type="hidden" name="parent" value="{{ comment.id }}">
+                <button type="submit">پاسخ</button>
+                </form>
+                {% else %}
+                <p>برای پاسخ دادن باید وارد حساب کاربری شوید</p>
+            {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    <h4>کامنت خود را بنویسید: </h4>
+    {% if user.is_authenticated %}
+        <form method="post">
+        {% csrf_token %}
+        {{ form }}
+         <button type="submit">ارسال</button>
+        </form>
+    {% else %}
+        <p>شما باید ابتدا وارد پروفایل کاربری خود شوید</p>
+    {% endif %}
+    {% if product.status == 'Size' %}
+        <form action="" method="post">
+        {% csrf_token %}
+        {% for data in variant %}
+            <input type="radio" value="{{ data.id }}"{% if variants.id == data.id %} checked {% endif %}
+            name="select" onchange="this.form.submit()">
+            <a href="" style="text-decoration: none">{{ data.size_variant }}</a>
+        {% endfor %}
+        </form>
+      {% elif product.status == 'color' %}
+        <form action="" method="post">
+        {% csrf_token %}
+        {% for data in variant %}
+            <input type="radio" value="{{ data.id }}"{% if variants.id == data.id %} checked {% endif %}
+            name="select" onchange="this.form.submit()">
+             <a href="" style="text-decoration: none">{{ data.color_variant }}</a>
+        {% endfor %}
+        </form>
+    {% endif %}
+    <hr>
+    <p>محصولات مشابه</p>
+    {% for tag in similar %}
+        <a href="{% url 'home:details' tag.id %}">
+           <img src="{{ tag.image.url }}" width="200" alt="{{ tag.name }}">
+        </a>
+    {% endfor %}
+
+{% endblock %}
